@@ -1,0 +1,9 @@
+repo,contributor_count
+meta-llama/llama3,26
+ollama/ollama,30
+langchain-ai/langchain,30
+langchain-ai/langgraph,30
+microsoft/autogen,30
+openai/openai-cookbook,30
+elastic/elasticsearch,30
+milvus-io/pymilvus,30
