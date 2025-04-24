@@ -1,4 +1,0 @@
-Bucket name - forecasting-image-bucket
-URL - https://forecast-562422992160.us-central1.run.app
-
-https://forecast-562422992160.us-central1.run.app/run-notebook
