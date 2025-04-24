@@ -1,0 +1,4 @@
+env
+names.txt
+*.sh
+bucket_test.py

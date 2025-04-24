@@ -1,0 +1,14 @@
+flask
+nbclient
+nbformat
+python-dotenv
+google-cloud-storage
+
+tensorflow
+prophet>=1.1
+statsmodels
+scikit-learn
+matplotlib
+pandas
+numpy
+requests
