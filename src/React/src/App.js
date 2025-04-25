@@ -1,22 +1,23 @@
-// ReactForecastApp: Forecast UI for Flask-based API
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
 const API_URL = '/api/forecast';
 
 function App() {
-  const [response, setResponse] = useState(null);
+  const [responseData, setResponseData] = useState({});
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [expandedGroups, setExpandedGroups] = useState({});
+  const SHOW_REGENERATE_BUTTON = true;
 
   const fetchImages = async () => {
     setLoading(true);
     try {
       const res = await fetch(API_URL);
-      const data = await res.json();
-      setResponse(data);
+      const json = await res.json();
+      setResponseData(json.data || {});
     } catch (err) {
-      setResponse({ error: 'Failed to fetch images' });
+      console.error(err);
     }
     setLoading(false);
   };
@@ -25,44 +26,75 @@ function App() {
     fetchImages();
   }, []);
 
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value);
+  const toggleExpand = (key) => {
+    setExpandedGroups((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
 
-  const extractLabel = (url) => {
-    const filename = url.split('/').pop().replace('.png', '').replace('.jpg', '');
-    return filename.replace(/_/g, ' ');
-  };
-
-  const sortByNaturalNumber = (urls) => {
-    return [...urls].sort((a, b) => {
-      const nameA = a.split('/').pop().split('.')[0];
-      const nameB = b.split('/').pop().split('.')[0];
-      return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+  const getOrderedCategories = (categories) => {
+    const priority = ['charts', 'Tensorflow_LSTM', 'Prophet', 'StatsModel'];
+    return categories.sort((a, b) => {
+      const ai = priority.indexOf(a);
+      const bi = priority.indexOf(b);
+      return (ai === -1 ? priority.length : ai) - (bi === -1 ? priority.length : bi);
     });
   };
 
-  const categories = response?.images ? Object.keys(response.images) : [];
-  const filteredImages =
-    selectedCategory === 'All'
-      ? response?.images
-      : { [selectedCategory]: response?.images[selectedCategory] };
+  const getOrderedGroupKeys = (groupObj) => {
+    const priority = [
+      'issues_created_weekday_forecast',
+      'issues_closed_weekday_forecast',
+      'issues_closed_monthly_forecast',
+      'created_issues_forecast',
+      'closed_issues_forecast',
+      'pull_requests_forecast',
+      'monthly_commits_forecast',
+      'monthly_branches_forecast',
+      'monthly_contributors_forecast',
+      'monthly_releases_forecast'
+    ];
+    const keys = Object.keys(groupObj);
+
+    return keys
+      .map((key) => {
+        const cleanKey = key.replace('.png', '');
+        const match = priority.find((p) => cleanKey.includes(p));
+        const index = match ? priority.indexOf(match) : priority.length;
+        return [key, index];
+      })
+      .sort((a, b) => a[1] - b[1]);
+  };
+
+  const categories = getOrderedCategories(Object.keys(responseData));
+  const displayedData = selectedCategory === 'All'
+    ? responseData
+    : { [selectedCategory]: responseData[selectedCategory] };
 
   return (
     <div className="container">
-      <h1>Forecast Image Gallery</h1>
+      <h1>GitHub Repo Activity Forecast Dashboard</h1>
 
-      <button onClick={fetchImages} disabled={loading} style={{ marginBottom: '1rem' }}>
-        {loading ? 'Generating...' : 'Regenerate Forecast'}
-      </button>
+      {SHOW_REGENERATE_BUTTON && (
+        <button onClick={fetchImages} disabled={loading} style={{ marginBottom: '1rem' }}>
+          {loading ? 'Generating...' : 'Regenerate Forecast'}
+        </button>
+      )}
 
       {categories.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>
           <label htmlFor="category">Filter by Category: </label>
-          <select id="category" onChange={handleCategoryChange} value={selectedCategory}>
+          <select
+            id="category"
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            value={selectedCategory}
+          >
             <option value="All">All</option>
             {categories.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
+              <option key={cat} value={cat}>
+                {cat === 'charts' ? 'Basic charts' : cat}
+              </option>
             ))}
           </select>
         </div>
@@ -75,29 +107,53 @@ function App() {
         </div>
       )}
 
-      {filteredImages && (
-        <div className="results">
-          {Object.entries(filteredImages).map(([model, urls]) => (
-            <div key={model} style={{ marginBottom: '2rem' }}>
-              <h2>{model}</h2>
-              <div className="image-grid">
-                {sortByNaturalNumber(urls).map((url, index) => (
-                  <div key={index} style={{ textAlign: 'center' }}>
-                    <img
-                      src={url}
-                      alt={`${model}-${index}`}
-                      style={{ maxWidth: '100%', marginBottom: '0.5rem' }}
-                    />
-                    <p style={{ fontSize: '0.9rem', color: '#555' }}>{extractLabel(url)}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {response?.error && <p className="error">{response.error}</p>}
+      {!loading &&
+        Object.entries(displayedData).map(([model, groups]) => (
+          <div key={model} style={{ marginBottom: '2rem' }}>
+            <h2>{model === 'charts' ? 'Basic charts' : model}</h2>
+            {getOrderedGroupKeys(groups).map(([groupKey], i) => {
+              const { main, children } = groups[groupKey];
+              const isExpanded = expandedGroups[`${model}-${groupKey}`];
+              return (
+                <div key={groupKey} className="group-block">
+                  <h3 style={{ marginBottom: '1rem' }}>
+                    {`${i + 1}. ${groupKey
+                      .replace('.png', '')
+                      .replace(/_/g, ' ')
+                      .replace(/\b\w/g, (c) => c.toUpperCase())}`}
+                  </h3>
+                  {main && (
+                    <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                      <img src={main} alt={groupKey} style={{ maxWidth: '100%' }} />
+                    </div>
+                  )}
+                  {Object.keys(children).length > 0 && (
+                    <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                      <button
+                        onClick={() => toggleExpand(`${model}-${groupKey}`)}
+                        style={{ fontSize: '0.8rem' }}
+                      >
+                        {isExpanded ? 'Hide Details' : 'Show Details'}
+                      </button>
+                    </div>
+                  )}
+                  {isExpanded && (
+                    <div className="image-grid">
+                      {Object.entries(children).map(([suffix, url]) => (
+                        <div key={suffix} style={{ textAlign: 'center' }}>
+                          <img src={url} alt={suffix} style={{ maxWidth: '100%', marginBottom: '0.5rem' }} />
+                          <p style={{ fontSize: '0.9rem', color: '#777' }}>
+                            {suffix.replace(/_/g, ' ') || 'Unknown'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))}
     </div>
   );
 }
