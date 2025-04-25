@@ -40,8 +40,9 @@ def upload_folder_images_to_gcs(local_folder):
 
 @app.route('/run-notebook', methods=['GET'])
 def run_notebook():
-    # notebook_path = "GitHub_Repos_Issues_Forecasting.ipynb"
-    notebook_path = "blank_test.ipynb"
+    notebook_path = "GitHub_Repos_Issues_Forecasting.ipynb"
+    # notebook_path = "test.ipynb"
+    print(f"hit run_notebook {notebook_path}")
 
     try:
         with open(notebook_path) as f:
@@ -50,9 +51,13 @@ def run_notebook():
         client_nb = NotebookClient(nb, kernel_name="python3")
         client_nb.execute()
 
+        print("Notebook executed successfully!")
+        print("Start uploading images to GCS")
+
         # Upload all generated images from each folder
         all_uploaded_images = {}
         for folder in IMAGE_FOLDERS:
+            print(f"Uploading images from {folder} folder")
             urls = upload_folder_images_to_gcs(folder)
             all_uploaded_images[folder] = urls
 
