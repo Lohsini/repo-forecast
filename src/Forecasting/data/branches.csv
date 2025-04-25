@@ -1,9 +1,17 @@
 repo,branch_count
 meta-llama/llama3,19
+meta-llama/llama3,19
+ollama/ollama,30
 ollama/ollama,30
 langchain-ai/langchain,30
+langchain-ai/langchain,30
+langchain-ai/langgraph,30
 langchain-ai/langgraph,30
 microsoft/autogen,30
+microsoft/autogen,30
+openai/openai-cookbook,30
 openai/openai-cookbook,30
 elastic/elasticsearch,30
+elastic/elasticsearch,30
+milvus-io/pymilvus,15
 milvus-io/pymilvus,15

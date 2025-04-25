@@ -122,6 +122,9 @@ ollama/ollama,2023-07-13
 ollama/ollama,2023-07-11
 ollama/ollama,2023-07-11
 ollama/ollama,2023-07-08
+langchain-ai/langchain,2025-04-24
+langchain-ai/langchain,2025-04-24
+langchain-ai/langchain,2025-04-23
 langchain-ai/langchain,2025-04-22
 langchain-ai/langchain,2025-04-22
 langchain-ai/langchain,2025-04-21
@@ -996,6 +999,9 @@ langchain-ai/langchain,2023-01-22
 langchain-ai/langchain,2023-01-20
 langchain-ai/langchain,2023-01-18
 langchain-ai/langchain,2023-01-16
+langchain-ai/langgraph,2025-04-24
+langchain-ai/langgraph,2025-04-23
+langchain-ai/langgraph,2025-04-23
 langchain-ai/langgraph,2025-04-22
 langchain-ai/langgraph,2025-04-22
 langchain-ai/langgraph,2025-04-21
@@ -1567,6 +1573,7 @@ elastic/elasticsearch,2019-07-30
 elastic/elasticsearch,2019-07-30
 elastic/elasticsearch,2019-06-25
 elastic/elasticsearch,2019-06-20
+milvus-io/pymilvus,2025-04-23
 milvus-io/pymilvus,2025-03-21
 milvus-io/pymilvus,2025-03-06
 milvus-io/pymilvus,2025-02-24
