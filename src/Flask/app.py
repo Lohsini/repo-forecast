@@ -4,6 +4,7 @@ import requests
 from flask_cors import CORS
 from dotenv import load_dotenv
 import json
+from google.cloud import storage
 
 load_dotenv()
 
@@ -11,6 +12,10 @@ app = Flask(__name__)
 CORS(app)
 
 NOTEBOOK_API_URL = os.environ.get("NOTEBOOK_API_URL")
+BASE_IMAGE_PATH = os.environ.get("BASE_IMAGE_PATH")
+BUCKET_NAME = os.environ.get("BUCKET_NAME")
+
+client = storage.Client()
 
 
 def organize_forecast_data(uploaded_images):
@@ -54,9 +59,24 @@ def organize_forecast_data(uploaded_images):
     return organized
 
 
+def fetch_gcs_image_urls(folder):
+    urls = []
+    bucket = client.bucket(BUCKET_NAME)
+
+    if folder:
+        blobs = bucket.list_blobs(prefix=f"{folder}/")
+    else:
+        blobs = bucket.list_blobs()
+
+    for blob in blobs:
+        if blob.name.endswith(".png") or blob.name.endswith(".jpg"):
+            urls.append(BASE_IMAGE_PATH + blob.name)
+    return urls
+
+
 @app.route("/")
 def home():
-    return "Welcome to the Forecast Microservice API. Use /api/forecast to get structured forecast results."
+    return "Welcome to the Forecast Microservice API. Use /api/forecast or /api/bucket/<folder>"
 
 
 @app.route("/api/forecast", methods=["GET"])
@@ -72,6 +92,28 @@ def get_forecast_images():
 
         return jsonify({
             "message": "Forecast completed and structured successfully",
+            "data": structured_data
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/bucket", methods=["GET"])
+def get_all_bucket_images():
+    try:
+        folders = ["Prophet", "StatsModel",
+                   "Tensorflow_LSTM", "charts"]
+        all_data = {}
+
+        for folder in folders:
+            urls = fetch_gcs_image_urls(folder)
+            all_data[folder] = urls
+
+        structured_data = organize_forecast_data(all_data)
+
+        return jsonify({
+            "message": "Fetched images from all model folders",
             "data": structured_data
         })
 
