@@ -98,12 +98,12 @@ function App() {
   return (
     <div className="container">
       <h1>GitHub Repo Activity Forecast Dashboard</h1>
-      <p style={{ fontStyle: 'italic', color: '#888', marginBottom: '1rem' }}>
+      {/* <p style={{ fontStyle: 'italic', color: '#888', marginBottom: '1rem' }}>
         Data Source: <strong>{dataSource}</strong>
-      </p>
-      <button onClick={fetchFromNotebook} disabled={loading} style={{ marginBottom: '1rem' }}>
+      </p> */}
+      {/* <button onClick={fetchFromNotebook} disabled={loading} style={{ marginBottom: '1rem' }}>
         {loading ? 'Generating...' : 'Regenerate Forecast'}
-      </button>
+      </button> */}
 
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="category">Filter by Category: </label>
