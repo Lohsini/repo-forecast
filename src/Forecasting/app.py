@@ -1,4 +1,5 @@
 
+from flask import Flask, request, jsonify
 from google.cloud import storage
 from flask import Flask, jsonify
 from nbclient import NotebookClient
@@ -40,8 +41,11 @@ def upload_folder_images_to_gcs(local_folder):
 
 @app.route('/run-notebook', methods=['GET'])
 def run_notebook():
-    notebook_path = "GitHub_Repos_Issues_Forecasting.ipynb"
-    # notebook_path = "test.ipynb"
+    action = request.args.get('action', default='noop')
+    if action == 'noop':
+        notebook_path = "test.ipynb"
+    else:
+        notebook_path = "GitHub_Repos_Issues_Forecasting.ipynb"
     print(f"hit run_notebook {notebook_path}")
 
     try:

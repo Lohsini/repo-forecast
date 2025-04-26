@@ -1,20 +1,18 @@
 FROM python:3.10-slim
 
-ENV PORT 8080
-
+ENV PORT=8080
 WORKDIR /app
 
-# Install system dependencies needed for Prophet (with cmdstanpy)
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   gcc \
   g++ \
-  && apt-get clean
+  && rm -rf /var/lib/apt/lists/*
 
-COPY . /app
+COPY . .
 
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install jupyter
+RUN pip install --upgrade pip \
+  && pip install --no-cache-dir -r requirements.txt \
+  && pip install --no-cache-dir jupyter ipykernel
 
 EXPOSE 8080
 
