@@ -1,21 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-const API_URL = '/api/forecast';
+const API_FORECAST_URL = '/api/forecast';
+const API_BUCKET_URL = '/api/bucket';
 
 function App() {
   const [responseData, setResponseData] = useState({});
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [expandedGroups, setExpandedGroups] = useState({});
+  const [dataSource, setDataSource] = useState(''); // "GCS Bucket" or "Notebook (Live)"
   const SHOW_REGENERATE_BUTTON = true;
 
-  const fetchImages = async () => {
+  const fetchFromBucket = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(API_BUCKET_URL);
       const json = await res.json();
       setResponseData(json.data || {});
+      setDataSource('GCS Bucket');
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  const fetchFromNotebook = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(API_FORECAST_URL);
+      const json = await res.json();
+      setResponseData(json.data || {});
+      setDataSource('Notebook (Live)');
     } catch (err) {
       console.error(err);
     }
@@ -23,7 +39,7 @@ function App() {
   };
 
   useEffect(() => {
-    fetchImages();
+    fetchFromBucket();
   }, []);
 
   const toggleExpand = (key) => {
@@ -76,8 +92,12 @@ function App() {
     <div className="container">
       <h1>GitHub Repo Activity Forecast Dashboard</h1>
 
+      <p style={{ fontStyle: 'italic', color: '#888', marginBottom: '1rem' }}>
+        Data Source: <strong>{dataSource}</strong>
+      </p>
+
       {SHOW_REGENERATE_BUTTON && (
-        <button onClick={fetchImages} disabled={loading} style={{ marginBottom: '1rem' }}>
+        <button onClick={fetchFromNotebook} disabled={loading} style={{ marginBottom: '1rem' }}>
           {loading ? 'Generating...' : 'Regenerate Forecast'}
         </button>
       )}
